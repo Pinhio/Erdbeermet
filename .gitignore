@@ -55,3 +55,4 @@ _minted*/
 # others
 testfile*
 *.DS_Store
+src/erdbeermet.egg-info/
