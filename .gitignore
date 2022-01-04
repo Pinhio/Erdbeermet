@@ -56,3 +56,7 @@ _minted*/
 testfile*
 *.DS_Store
 src/erdbeermet.egg-info/
+
+# prak
+prak/fail_outputs/
+examples/readme*

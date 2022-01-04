@@ -18,7 +18,7 @@ class Visualizer:
                  'no candidate': r'no candidate',
                  'spikes too short': r'spikes too short'}
     
-    def __init__(self, tree, decimal_prec=4, save_as=None):
+    def __init__(self, tree, decimal_prec=4, save_as=None, popup=True):
         
         self.tree = tree
         self.decimal_prec = decimal_prec
@@ -37,8 +37,10 @@ class Visualizer:
         self.leaf_counter = 0
         self.node_positions = {}
         
-        self.draw()
+        self.popup = popup
         
+        self.draw()
+    
         if save_as:
             self.fig.savefig(save_as)
         
@@ -65,7 +67,9 @@ class Visualizer:
         ymin, ymax = self.ax.get_ylim()
         self.fig.set_size_inches(5*abs(xmax-xmin), 5*abs(ymax-ymin)+0.4)
         plt.tight_layout()
-        plt.show()
+        
+        if self.popup:
+            plt.show()
         
     
     def initial_traversal(self):

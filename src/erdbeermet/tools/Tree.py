@@ -173,9 +173,9 @@ class Tree:
             return ';'
         
     
-    def visualize(self, decimal_prec=4, save_as=None):
+    def visualize(self, decimal_prec=4, save_as=None, popup=True):
         
-        Visualizer(self, decimal_prec=decimal_prec, save_as=save_as)
+        Visualizer(self, decimal_prec=decimal_prec, save_as=save_as, popup=popup)
     
     
     def write_to_file(self, filename):
