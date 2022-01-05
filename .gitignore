@@ -59,4 +59,5 @@ src/erdbeermet.egg-info/
 
 # prak
 prak/fail_outputs/
+prak/sim_outputs/
 examples/readme*
