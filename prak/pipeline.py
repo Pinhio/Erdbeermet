@@ -55,7 +55,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                 start_time = time()
 
                 # create scenario 
-                scenario = simulate(s, circular, clocklike)
+                scenario = simulate(s, circular=circular, clocklike=clocklike)
 
                 # get all triples of simulation
                 hist = scenario.history
@@ -64,6 +64,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                     simulation_triples.append((h[:3]))   
                     
                 # recognition
+                B = None
                 # WP3 (this if block)
                 if block_leaves in [3,4]:
                     perms = permutations(range(s), block_leaves)
@@ -74,7 +75,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                             break
                 # WP1 (normal pipeline)
                 else:
-                    rec_tree = recognize(scenario.D, first_candidate_only, print_info)
+                    rec_tree = recognize(scenario.D, B, first_candidate_only, print_info)
 
                 # recognized as valid R-map
                 rec_as_r_map = rec_tree.root.valid_ways > 0
@@ -82,7 +83,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                 # reconstruction failed: print matrix, save tree, show box-graphs
                 if not rec_as_r_map:
                     fails += 1
-                    print("Recognition failed for matrix:")
+                    # print("Recognition failed for matrix:")
                     f.write('===========================================\n')
                     f.write(f'recognition failed for matrix with size {s}:\n')
                     f.write(str(rec_tree.root.D))
@@ -90,7 +91,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                     f.write(f'history of scenario:\n')
                     f.write(str(hist))
                     f.write('\n')
-                    print(rec_tree.root.D)
+                    # print(rec_tree.root.D)
                     dest = f"prak/fail_outputs/{fn}"
                     rec_tree.visualize(save_as=dest + ".pdf", popup=False)
                     """ for node in rec_tree.preorder():
@@ -143,12 +144,14 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
 
             
             # print avg runtime of this size
-            avg_runtime = sum(runtimes) / len(runtimes)
+            total_runtime = sum(runtimes)
+            avg_runtime = total_runtime / len(runtimes)
             avg_div = sum(divergences) / len(divergences)
             if print_pipe_info:
                 print(f'avg runtime size {s}: {avg_runtime}')
             f.write('\n')
             f.write(f'=== size {s} ================================\n')
+            f.write(f'total runtime:       {total_runtime}\n')
             f.write(f'avg runtime:         {avg_runtime}\n')
             f.write(f'avg divergence:      {avg_div}\n')
             f.write(f'failed recognitions: {fails} on {iterations} iterations\n')
@@ -162,18 +165,40 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
 # low_performing_pipeline([6, 8, 10], iterations=3)
 
 # tests for WP1
-# low_performing_pipeline([6,7,8], iterations=22222)
-# low_performing_pipeline([6,7,8], iterations=22222, circular=True)
-# low_performing_pipeline([6,7,8], iterations=22222, clocklike=True)
-# low_performing_pipeline([6,7,8], iterations=22222, circular=True, clocklike=True)
+
+# Jan: all with circular=True
+# low_performing_pipeline(8, iterations=20000, circular=True)
+# low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=4)
+# low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=3)
+
+# Julius: all with circular=True && clocklike=True
+# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True)
+# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=3)
+# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=4)
+
+# Philipp: without circular and clocklike
+# low_performing_pipeline(8, iterations=20000)
+# low_performing_pipeline(8, iterations=20000, block_leaves=4)
+# low_performing_pipeline(8, iterations=20000, block_leaves=3)
+
+# clocklike=True
+# low_performing_pipeline(8, iterations=20000, clocklike=True)
+# low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=4)
+# low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=3)
+
+
+# WP1
+# low_performing_pipeline(8, iterations=20000)
+# low_performing_pipeline(8, iterations=20000, circular=True)
+# low_performing_pipeline(8, iterations=20000, clocklike=True)
+# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True)
 
 # tests for WP3
-# low_performing_pipeline(6, iterations=1000, block_leaves=4)
-# low_performing_pipeline([6,7,8], iterations=22222, block_leaves=4)
-# low_performing_pipeline([6,7,8], iterations=22222, circular=True, block_leaves=4)
-# low_performing_pipeline([6,7,8], iterations=22222, clocklike=True, block_leaves=4)
-# low_performing_pipeline([6,7,8], iterations=22222, circular=True, clocklike=True, block_leaves=4)
-# low_performing_pipeline([6,7,8], iterations=22222, block_leaves=3)
-# low_performing_pipeline([6,7,8], iterations=22222, circular=True, block_leaves=3)
-# low_performing_pipeline([6,7,8], iterations=22222, clocklike=True, block_leaves=3)
-# low_performing_pipeline([6,7,8], iterations=22222, circular=True, clocklike=True, block_leaves=3)
+# low_performing_pipeline(8, iterations=20000, block_leaves=4)
+# low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=4)
+# low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=4)
+# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=4)
+# low_performing_pipeline(8, iterations=20000, block_leaves=3)
+# low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=3)
+# low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=3)
+# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=3)
