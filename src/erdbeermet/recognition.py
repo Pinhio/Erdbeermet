@@ -331,13 +331,15 @@ def _finalize_tree(recognition_tree):
     _sort_children(recognition_tree.root)
     
     
-def recognize(D, first_candidate_only=False, print_info=False):
+def recognize(D, B=None, first_candidate_only=False, print_info=False):
     """Recognition of type R matrices.
     
     Parameters
     ----------
     D : 2-dimensional numpy array
         A distance matrix.
+    leaf_identifiers : list
+        a list of leaves, that must not be chosen as z
     first_candidate_only : bool, optional
         If True, only consider the first found candidate for a merge event.
         The default is False.
@@ -384,6 +386,15 @@ def recognize(D, first_candidate_only=False, print_info=False):
         if n > 4:
         
             candidates = _find_candidates(D, V, print_info)
+            # ensure that given values in B can't be candidates
+            # print(f"candidates: {candidates}")
+            # print(f"B: {B}")
+            if B != None:
+                temp_cand = candidates.copy()
+                for c in temp_cand:
+                    if c[2] in B:
+                        candidates.remove(c)
+            # print(f"candidates: {candidates}")
             
             found_valid = False
             

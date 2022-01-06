@@ -3,13 +3,24 @@ from erdbeermet.simulation import simulate
 from erdbeermet.recognition import recognize
 from erdbeermet.visualize.BoxGraphVis import plot_box_graph
 from time import time
+from itertools import permutations
 
-def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=[0,1,2,3], circular:bool=False, clocklike:bool=False, first_candidate_only:bool=True, print_info:bool=False, print_pipe_info:bool=False):
+
+def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=[0,1,2,3], circular:bool=False, clocklike:bool=False, first_candidate_only:bool=True, block_leaves:int=0, print_info:bool=False, print_pipe_info:bool=False):
     '''
     pipeline as described in WP1
 
     size: simulation matrix size (list or int)
     iterations: number of iterations performed for each passed size
+    first_four_simulation: first four leafs
+    circular: parameter passed into simulation to genereate circular matrix
+    clocklike: parameter passed into simulation to genereate clocklike distances
+    block_leaves:
+    first_candidate_only: terminates regocnition when first valid candidate has been found
+    print_info: parameter passed into recognition algorithm to print out info
+    print_pipe_info: print info generated in pipeline, which is written to file anyway
+
+    return: nothing hehe! xD
     '''
     # create list of single size to guarantee functionality
     # don't start if size < 6 is given
@@ -26,6 +37,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
     elif circular and not clocklike: subfolder = 'cnc'
     elif not circular and clocklike: subfolder = 'ncc'
 
+    # filename var which corresponds to starting time
     fn = time()
 
     with open(f'prak/sim_outputs/{subfolder}/{fn}.txt', 'w') as f:
@@ -33,8 +45,10 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
         for s in size:
             # measure runtime
             runtimes = []
-
+            # measure divergence
             divergences = []
+            # counter for fails
+            fails = 0
 
             for i in range(iterations):
                 # start_time
@@ -48,15 +62,26 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                 simulation_triples = []
                 for h in hist:
                     simulation_triples.append((h[:3]))   
-
+                    
                 # recognition
-                rec_tree = recognize(scenario.D, first_candidate_only, print_info) # additional params?
-                
+                # WP3 (this if block)
+                if block_leaves in [3,4]:
+                    perms = permutations(range(s), block_leaves)
+                    for B in perms:
+                        rec_tree = recognize(scenario.D, B, first_candidate_only, print_info)
+                        if rec_tree.root.valid_ways > 0:
+                            # print("valid permutation found")
+                            break
+                # WP1 (normal pipeline)
+                else:
+                    rec_tree = recognize(scenario.D, first_candidate_only, print_info)
+
                 # recognized as valid R-map
                 rec_as_r_map = rec_tree.root.valid_ways > 0
 
                 # reconstruction failed: print matrix, save tree, show box-graphs
                 if not rec_as_r_map:
+                    fails += 1
                     print("Recognition failed for matrix:")
                     f.write('===========================================\n')
                     f.write(f'recognition failed for matrix with size {s}:\n')
@@ -124,13 +149,31 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                 print(f'avg runtime size {s}: {avg_runtime}')
             f.write('\n')
             f.write(f'=== size {s} ================================\n')
-            f.write(f'avg runtime:    {avg_runtime}\n')
-            f.write(f'avg divergence: {avg_div}\n')
+            f.write(f'avg runtime:         {avg_runtime}\n')
+            f.write(f'avg divergence:      {avg_div}\n')
+            f.write(f'failed recognitions: {fails} on {iterations} iterations\n')
             f.write('===========================================\n')
             f.write('\n')
                 
             
-low_performing_pipeline([6,7,8,9,10], iterations=30, print_pipe_info=False)
+# low_performing_pipeline([6,7,8], iterations=30, print_pipe_info=False)
 # other examples
 # low_performing_pipeline(7, iterations=2, clocklike=True)
 # low_performing_pipeline([6, 8, 10], iterations=3)
+
+# tests for WP1
+# low_performing_pipeline([6,7,8], iterations=22222)
+# low_performing_pipeline([6,7,8], iterations=22222, circular=True)
+# low_performing_pipeline([6,7,8], iterations=22222, clocklike=True)
+# low_performing_pipeline([6,7,8], iterations=22222, circular=True, clocklike=True)
+
+# tests for WP3
+# low_performing_pipeline(6, iterations=1000, block_leaves=4)
+# low_performing_pipeline([6,7,8], iterations=22222, block_leaves=4)
+# low_performing_pipeline([6,7,8], iterations=22222, circular=True, block_leaves=4)
+# low_performing_pipeline([6,7,8], iterations=22222, clocklike=True, block_leaves=4)
+# low_performing_pipeline([6,7,8], iterations=22222, circular=True, clocklike=True, block_leaves=4)
+# low_performing_pipeline([6,7,8], iterations=22222, block_leaves=3)
+# low_performing_pipeline([6,7,8], iterations=22222, circular=True, block_leaves=3)
+# low_performing_pipeline([6,7,8], iterations=22222, clocklike=True, block_leaves=3)
+# low_performing_pipeline([6,7,8], iterations=22222, circular=True, clocklike=True, block_leaves=3)
