@@ -92,7 +92,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                     f.write(str(hist))
                     f.write('\n')
                     # print(rec_tree.root.D)
-                    dest = f"prak/fail_outputs/{fn}"
+                    dest = f"prak/fail_outputs/{fn}_{fails}"
                     rec_tree.visualize(save_as=dest + ".pdf", popup=False)
                     """ for node in rec_tree.preorder():
                         if node.valid_ways == 1 and len(node.V) == 4:
@@ -158,13 +158,12 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
             f.write('===========================================\n')
             f.write('\n')
                 
-            
+
+# examples         
 # low_performing_pipeline([6,7,8], iterations=30, print_pipe_info=False)
-# other examples
 # low_performing_pipeline(7, iterations=2, clocklike=True)
 # low_performing_pipeline([6, 8, 10], iterations=3)
 
-# tests for WP1
 
 # Jan: all with circular=True
 # low_performing_pipeline(8, iterations=20000, circular=True)
@@ -187,7 +186,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
 # low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=3)
 
 
-# WP1
+# tests for WP1
 # low_performing_pipeline(8, iterations=20000)
 # low_performing_pipeline(8, iterations=20000, circular=True)
 # low_performing_pipeline(8, iterations=20000, clocklike=True)
