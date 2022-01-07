@@ -92,7 +92,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                     f.write(str(hist))
                     f.write('\n')
                     # print(rec_tree.root.D)
-                    dest = f"prak/sim_outputs/{subfolder}/{fn}_{fails}"
+                    dest = f"prak/sim_outputs/{subfolder}/{fn}_s{s}_{fails}"
                     rec_tree.visualize(save_as=dest + ".pdf", popup=False)
                     """ for node in rec_tree.preorder():
                         if node.valid_ways == 1 and len(node.V) == 4:
