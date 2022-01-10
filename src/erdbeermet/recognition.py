@@ -2,6 +2,7 @@
 
 from itertools import combinations, permutations
 import numpy as np
+from numpy.core.numeric import isclose
 
 from erdbeermet.tools.Tree import Tree, TreeNode
 
@@ -331,7 +332,7 @@ def _finalize_tree(recognition_tree):
     _sort_children(recognition_tree.root)
     
     
-def recognize(D, B=None, first_candidate_only=False, print_info=False):
+def recognize(D, B=None, choose_smallest_spike=False, first_candidate_only=False, print_info=False):
     """Recognition of type R matrices.
     
     Parameters
@@ -358,6 +359,8 @@ def recognize(D, B=None, first_candidate_only=False, print_info=False):
     
     n = D.shape[0]
     V = [i for i in range(n)]
+
+    circle = False
     
     recognition_tree = Tree(TreeNode(n, V, D=D))
     stack = []
@@ -376,7 +379,7 @@ def recognize(D, B=None, first_candidate_only=False, print_info=False):
     else:
         stack.append(recognition_tree.root)
     
-    
+   
     while stack:
         
         parent = stack.pop()
@@ -386,7 +389,7 @@ def recognize(D, B=None, first_candidate_only=False, print_info=False):
         if n > 4:
         
             candidates = _find_candidates(D, V, print_info)
-            # ensure that given values in B can't be candidates
+            # WP3: ensure that given values in B can't be candidates
             # print(f"candidates: {candidates}")
             # print(f"B: {B}")
             if B != None:
@@ -395,6 +398,57 @@ def recognize(D, B=None, first_candidate_only=False, print_info=False):
                     if c[2] in B:
                         candidates.remove(c)
             # print(f"candidates: {candidates}")
+
+            # WP4: select candidate with smallest spike length
+            # create a dict candidate_dependencies for each candidate
+            # candidate_dependencies holds deltas of the triple and a list of candidates with smaller spike lengths as well as the index in the candidates list
+            if choose_smallest_spike and len(candidates) != 1:
+                candidate_dependencies = {}
+                for c_i, c in enumerate(candidates):
+                    c_delt = _compute_deltas(V, D, c[4], c[0], c[1], c[2], c[3])
+                    c_delt = (c_delt[2], c_delt[3], c_delt[0])
+                    c_xyz = (c[0], c[1], c[2])
+                    candidate_dependencies[c_xyz] = [c_delt, [], c_i]
+                    for k, v in candidate_dependencies.items():
+                        # -1 initial state, 0: first triple has smaller delta (k bigger), 1: second triple has smaller delta
+                        compare_state = -1
+                        #succ_state default = True and when first/second triplet delta comparison still smaller
+                        succ_state = True
+                        if k != c_xyz:
+                            for xyz_i, xyz in enumerate(c_xyz):
+                                if xyz in k:
+                                    k_i = k.index(xyz)
+                                    smaller_state = 0 if v[0][k_i] < candidate_dependencies[c_xyz][0][xyz_i] and not np.isclose(v[0][k_i], candidate_dependencies[c_xyz][0][xyz_i]) else 1
+                                    if compare_state == -1 or compare_state == smaller_state:
+                                        compare_state = smaller_state
+                                    elif compare_state != -1 and compare_state != smaller_state:
+                                        succ_state = False
+                                        continue
+                            if succ_state:
+                                if compare_state == 0:
+                                    candidate_dependencies[c_xyz][1].append(k)
+                                elif compare_state == 1:
+                                    candidate_dependencies[k][1].append(c_xyz)
+                    # for k, v in candidate_dependencies.items():
+                        # print(f"{k}: {v}")
+                    # print('------------------------------------------------------------')
+                # print('======================')
+                c_smallest_spike = []
+                for k, v in candidate_dependencies.items():
+                    # print(f"{k}: {v}")
+                    if not v[1]:
+                        c_smallest_spike.append(candidates[v[2]])
+                # print(c_smallest_spike)
+                if len(c_smallest_spike) > 1:
+                    rand_c = np.random.randint(len(c_smallest_spike))
+                    candidates = [c_smallest_spike[rand_c]]
+                elif len(c_smallest_spike) == 1:
+                    candidates = c_smallest_spike
+                else:
+                    circle = True
+                    # print('circle')
+                # print(f'chosen candidate: {candidates}')
+                    
             
             found_valid = False
             
@@ -458,5 +512,5 @@ def recognize(D, B=None, first_candidate_only=False, print_info=False):
                 if print_info: print(f'NO R-MAP on {V}')
                 parent.info = 'spikes too short'
     
-    _finalize_tree(recognition_tree)    
-    return recognition_tree
+    _finalize_tree(recognition_tree)
+    return recognition_tree, circle

@@ -6,7 +6,7 @@ from time import time
 from itertools import permutations
 
 
-def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=[0,1,2,3], circular:bool=False, clocklike:bool=False, first_candidate_only:bool=True, block_leaves:int=0, print_info:bool=False, print_pipe_info:bool=False):
+def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=[0,1,2,3], circular:bool=False, clocklike:bool=False, first_candidate_only:bool=True, block_leaves:int=0, pdf_error:bool=True, print_info:bool=False, print_pipe_info:bool=False):
     '''
     pipeline as described in WP1
 
@@ -49,6 +49,8 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
             divergences = []
             # counter for fails
             fails = 0
+            # counter for circles
+            circles = 0
 
             for i in range(iterations):
                 # start_time
@@ -75,7 +77,10 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                             break
                 # WP1 (normal pipeline)
                 else:
-                    rec_tree = recognize(scenario.D, B, first_candidate_only, print_info)
+                    rec_tree, circle = recognize(scenario.D, B, first_candidate_only, print_info)
+
+                if circle and pdf_error:
+                    rec_tree.visualize(save_as=dest + ".pdf", popup=False)
 
                 # recognized as valid R-map
                 rec_as_r_map = rec_tree.root.valid_ways > 0
@@ -83,9 +88,11 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                 # reconstruction failed: print matrix, save tree, show box-graphs
                 if not rec_as_r_map:
                     fails += 1
+                    if circle:
+                        circles += 1
                     # print("Recognition failed for matrix:")
                     f.write('===========================================\n')
-                    f.write(f'recognition failed for matrix with size {s}:\n')
+                    f.write(f'recognition failed ({fails}) for matrix with size {s}:\n')
                     f.write(str(rec_tree.root.D))
                     f.write('\n')
                     f.write(f'history of scenario:\n')
@@ -93,7 +100,8 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                     f.write('\n')
                     # print(rec_tree.root.D)
                     dest = f"prak/sim_outputs/{subfolder}/{fn}_s{s}_{fails}"
-                    rec_tree.visualize(save_as=dest + ".pdf", popup=False)
+                    if pdf_error:
+                        rec_tree.visualize(save_as=dest + ".pdf", popup=False)
                     """ for node in rec_tree.preorder():
                         if node.valid_ways == 1 and len(node.V) == 4:
                             pass """
@@ -155,6 +163,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
             f.write(f'avg runtime:         {avg_runtime}\n')
             f.write(f'avg divergence:      {avg_div}\n')
             f.write(f'failed recognitions: {fails} on {iterations} iterations\n')
+            f.write(f'circles:             {circles}\n')
             f.write('===========================================\n')
             f.write('\n')
                 
@@ -172,8 +181,8 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
 
 # Julius: all with circular=True && clocklike=True
 # low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True)
-# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=3)
 # low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=4)
+# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=3)
 
 # Philipp: without circular and clocklike
 # low_performing_pipeline(8, iterations=20000)
@@ -201,3 +210,5 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
 # low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=3)
 # low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=3)
 # low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=3)
+
+low_performing_pipeline(8, iterations=50, pdf_error=False)
