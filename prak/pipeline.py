@@ -6,7 +6,7 @@ from time import time
 from itertools import permutations
 
 
-def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=[0,1,2,3], circular:bool=False, clocklike:bool=False, first_candidate_only:bool=True, block_leaves:int=0, pdf_error:bool=True, print_info:bool=False, print_pipe_info:bool=False):
+def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=[0,1,2,3], circular:bool=False, clocklike:bool=False, first_candidate_only:bool=True, block_leaves:int=0, choose_smallest_spike:bool=False, pdf_error:bool=False, print_failed:bool=False, print_info:bool=False):
     '''
     pipeline as described in WP1
 
@@ -15,13 +15,14 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
     first_four_simulation: first four leafs
     circular: parameter passed into simulation to genereate circular matrix
     clocklike: parameter passed into simulation to genereate clocklike distances
-    block_leaves:
     first_candidate_only: terminates regocnition when first valid candidate has been found
+    block_leaves: initiates blocking of first 3 resp. 4 leaves of generation. These leaves won't be considered in recognition as candidates.
+    choose_smallest_spike: only considers candidates with smallest spikes for recognition
+    pdf_error: show pdf trees if true
+    print_fail: write additional debug-information for each iteration to file
     print_info: parameter passed into recognition algorithm to print out info
-    print_pipe_info: print info generated in pipeline, which is written to file anyway
-
-    return: nothing hehe! xD
     '''
+    
     # create list of single size to guarantee functionality
     # don't start if size < 6 is given
     if type(size) == int:
@@ -37,10 +38,31 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
     elif circular and not clocklike: subfolder = 'cnc'
     elif not circular and clocklike: subfolder = 'ncc'
 
+    # determine WP for filename
+    wp = 'wp1'
+    if choose_smallest_spike:
+        wp = 'wp4'
+    elif block_leaves in [3,4]:
+        wp = 'wp3'
+
     # filename var which corresponds to starting time
     fn = time()
 
-    with open(f'prak/sim_outputs/{subfolder}/{fn}.txt', 'w') as f:
+    with open(f'prak/sim_outputs/{subfolder}/{wp}_{fn}.txt', 'w') as f:
+        # write chosen parameters to file
+        f.write(f'=====================================================\n')
+        f.write(f'size:                  {size}\n')
+        f.write(f'iterations:            {iterations}\n')
+        f.write(f'first_four_simulation: {first_four_simulation}\n')
+        f.write(f'circular:              {circular}\n')
+        f.write(f'clocklike:             {clocklike}\n')
+        f.write(f'first_candidate_only:  {first_candidate_only}\n')
+        f.write(f'block_leaves:          {block_leaves}\n')
+        f.write(f'choose_smallest_spike: {choose_smallest_spike}\n')
+        f.write(f'pdf_error:             {pdf_error}\n')
+        f.write(f'print_failed:          {print_failed}\n')
+        f.write(f'print_info:            {print_info}\n')
+        f.write(f'=====================================================\n')
 
         for s in size:
             # measure runtime
@@ -51,6 +73,8 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
             fails = 0
             # counter for circles
             circles = 0
+            # counter for recognition of the initial leaves of the simulation
+            rec_first_four = 0
 
             for i in range(iterations):
                 # start_time
@@ -71,13 +95,16 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                 if block_leaves in [3,4]:
                     perms = permutations(range(s), block_leaves)
                     for B in perms:
-                        rec_tree = recognize(scenario.D, B, first_candidate_only, print_info)
+                        rec_tree, circle = recognize(scenario.D, B, choose_smallest_spike, first_candidate_only, print_info)
                         if rec_tree.root.valid_ways > 0:
                             # print("valid permutation found")
                             break
+                # WP4
+                elif choose_smallest_spike:
+                    rec_tree, circle = recognize(scenario.D, B, choose_smallest_spike, first_candidate_only, print_info)
                 # WP1 (normal pipeline)
                 else:
-                    rec_tree, circle = recognize(scenario.D, B, first_candidate_only, print_info)
+                    rec_tree, circle = recognize(scenario.D, B, choose_smallest_spike, first_candidate_only, print_info)
 
                 if circle and pdf_error:
                     rec_tree.visualize(save_as=dest + ".pdf", popup=False)
@@ -90,22 +117,17 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                     fails += 1
                     if circle:
                         circles += 1
-                    # print("Recognition failed for matrix:")
-                    f.write('===========================================\n')
-                    f.write(f'recognition failed ({fails}) for matrix with size {s}:\n')
-                    f.write(str(rec_tree.root.D))
-                    f.write('\n')
-                    f.write(f'history of scenario:\n')
-                    f.write(str(hist))
-                    f.write('\n')
-                    # print(rec_tree.root.D)
-                    dest = f"prak/sim_outputs/{subfolder}/{fn}_s{s}_{fails}"
-                    if pdf_error:
-                        rec_tree.visualize(save_as=dest + ".pdf", popup=False)
-                    """ for node in rec_tree.preorder():
-                        if node.valid_ways == 1 and len(node.V) == 4:
-                            pass """
-                            # plot_box_graph(node.D, labels=range(4))
+                    if print_failed:
+                        f.write('===========================================\n')
+                        f.write(f'recognition failed ({fails}) for matrix with size {s}:\n')
+                        f.write(str(rec_tree.root.D))
+                        f.write('\n')
+                        f.write(f'history of scenario:\n')
+                        f.write(str(hist))
+                        f.write('\n')
+                        dest = f"prak/sim_outputs/{subfolder}/{wp}_{fn}_s{s}_{fails}"
+                        if pdf_error:
+                            rec_tree.visualize(save_as=dest + ".pdf", popup=False)
                     continue
 
                 # get the first valid combination of 4 leaves
@@ -120,7 +142,7 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                         valid_triples.append(node.R_step[:3])
 
                 # classify whether the final 4-leaf map matches the first 4 leaves of the simulation
-                rec_first_four = first_four_simulation in valid_4_leaves
+                rec_first_four += 1 if first_four_simulation in valid_4_leaves else 0
 
                 # Count common triples
                 common_triples = 0
@@ -136,79 +158,49 @@ def low_performing_pipeline(size:Union[int,list], iterations:int=1, first_four_s
                 # calc runtime
                 runtimes.append(end_time - start_time)
 
-                # print info of this iteration
-                if print_pipe_info:
-                    # write to file
-                    f.write(f'----------- size {s} | iteration {i+1} -----------\n')
-                    # f.write(scenario.D)
-                    f.write(f'simulation triples: {simulation_triples}\n')
-                    f.write(f'Valid leaves : {valid_4_leaves}\n')
-                    f.write(f'Valid triples: {valid_triples}\n')
-                    if rec_first_four:
-                        f.write(f'first four leaves ({first_four_simulation}) recognized\n')
-                    f.write(f'Number of common triples: {common_triples}\n')
-                    f.write(f'divergence: {divergence}\n')
-                    f.write('\n')
-
             
             # print avg runtime of this size
             total_runtime = sum(runtimes)
             avg_runtime = total_runtime / len(runtimes)
             avg_div = sum(divergences) / len(divergences)
-            if print_pipe_info:
-                print(f'avg runtime size {s}: {avg_runtime}')
+            
             f.write('\n')
-            f.write(f'=== size {s} ================================\n')
+            f.write(f'=== size {s} ==========================================\n')
             f.write(f'total runtime:       {total_runtime}\n')
             f.write(f'avg runtime:         {avg_runtime}\n')
             f.write(f'avg divergence:      {avg_div}\n')
-            f.write(f'failed recognitions: {fails} on {iterations} iterations\n')
+            f.write(f'first_four_rec:      {rec_first_four} of {iterations}\n')
+            f.write(f'failed recognitions: {fails} of {iterations}\n')
             f.write(f'circles:             {circles}\n')
-            f.write('===========================================\n')
+            f.write('=====================================================\n')
             f.write('\n')
                 
 
-# examples         
-# low_performing_pipeline([6,7,8], iterations=30, print_pipe_info=False)
-# low_performing_pipeline(7, iterations=2, clocklike=True)
-# low_performing_pipeline([6, 8, 10], iterations=3)
+# tests for WP1 with error output
+low_performing_pipeline(8, iterations=20000, print_failed=True, pdf_error=True)
+low_performing_pipeline(8, iterations=20000, circular=True, print_failed=True, pdf_error=True)
+low_performing_pipeline(8, iterations=20000, clocklike=True, print_failed=True, pdf_error=True)
+low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, print_failed=True, pdf_error=True)
 
+# test for WP3 with error output
+low_performing_pipeline(8, iterations=20000, block_leaves=4, print_failed=True, pdf_error=True)
+low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=4, print_failed=True, pdf_error=True)
+low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True)
+low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True)
+low_performing_pipeline(8, iterations=20000, block_leaves=3, print_failed=True, pdf_error=True)
+low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=3, print_failed=True, pdf_error=True)
+low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True)
+low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True)
 
-# Jan: all with circular=True
-# low_performing_pipeline(8, iterations=20000, circular=True)
-# low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=4)
-# low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=3)
+# tests for WP4 print_failed=False in order to omit buffer problems
+low_performing_pipeline(8, iterations=20000, choose_smallest_spike=True)
+low_performing_pipeline(8, iterations=20000, choose_smallest_spike=True, circular=True)
+low_performing_pipeline(8, iterations=20000, choose_smallest_spike=True, clocklike=True)
+low_performing_pipeline(8, iterations=20000, choose_smallest_spike=True, circular=True, clocklike=True)
+# WP4 with error output (without generating the pdfs)
+low_performing_pipeline(8, iterations=100, choose_smallest_spike=True, print_failed=True)
+low_performing_pipeline(8, iterations=100, choose_smallest_spike=True, circular=True, print_failed=True)
+low_performing_pipeline(8, iterations=100, choose_smallest_spike=True, clocklike=True, print_failed=True)
+low_performing_pipeline(8, iterations=100, choose_smallest_spike=True, circular=True, clocklike=True, print_failed=True)
 
-# Julius: all with circular=True && clocklike=True
-# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True)
-# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=4)
-# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=3)
-
-# Philipp: without circular and clocklike
-# low_performing_pipeline(8, iterations=20000)
-# low_performing_pipeline(8, iterations=20000, block_leaves=4)
-# low_performing_pipeline(8, iterations=20000, block_leaves=3)
-
-# clocklike=True
-# low_performing_pipeline(8, iterations=20000, clocklike=True)
-# low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=4)
-# low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=3)
-
-
-# tests for WP1
-# low_performing_pipeline(8, iterations=20000)
-# low_performing_pipeline(8, iterations=20000, circular=True)
-# low_performing_pipeline(8, iterations=20000, clocklike=True)
-# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True)
-
-# tests for WP3
-# low_performing_pipeline(8, iterations=20000, block_leaves=4)
-# low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=4)
-# low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=4)
-# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=4)
-# low_performing_pipeline(8, iterations=20000, block_leaves=3)
-# low_performing_pipeline(8, iterations=20000, circular=True, block_leaves=3)
-# low_performing_pipeline(8, iterations=20000, clocklike=True, block_leaves=3)
-# low_performing_pipeline(8, iterations=20000, circular=True, clocklike=True, block_leaves=3)
-
-low_performing_pipeline(8, iterations=50, pdf_error=False)
+# low_performing_pipeline(8, iterations=100, choose_smallest_spike=False, pdf_error=False, print_failed=False)

@@ -402,7 +402,7 @@ def recognize(D, B=None, choose_smallest_spike=False, first_candidate_only=False
             # WP4: select candidate with smallest spike length
             # create a dict candidate_dependencies for each candidate
             # candidate_dependencies holds deltas of the triple and a list of candidates with smaller spike lengths as well as the index in the candidates list
-            if choose_smallest_spike and len(candidates) != 1:
+            if choose_smallest_spike and len(candidates) != 1 and n > 5:
                 candidate_dependencies = {}
                 for c_i, c in enumerate(candidates):
                     c_delt = _compute_deltas(V, D, c[4], c[0], c[1], c[2], c[3])
@@ -449,7 +449,7 @@ def recognize(D, B=None, choose_smallest_spike=False, first_candidate_only=False
                     # print('circle')
                 # print(f'chosen candidate: {candidates}')
                     
-            
+        
             found_valid = False
             
             if print_info: 
