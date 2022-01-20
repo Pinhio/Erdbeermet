@@ -6,7 +6,7 @@ from itertools import permutations
 import os
 
 
-def pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=[0,1,2,3], circular:bool=False, clocklike:bool=False, first_candidate_only:bool=True, block_leaves:int=0, choose_smallest_spike:bool=False, pdf_error:bool=False, print_failed:bool=False, print_info:bool=False):
+def pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=[0,1,2,3], circular:bool=False, clocklike:bool=False, first_candidate_only:bool=True, block_leaves:int=0, choose_smallest_spike:bool=False, generate_hist_files:bool = False, pdf_error:bool=False, print_failed:bool=False, print_info:bool=False):
     '''
     pipeline as described in WP1
 
@@ -47,7 +47,8 @@ def pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=
 
     # filename var which corresponds to starting time
     fn = time()
-    os.makedirs(os.path.dirname(f'prak/sim_outputs/{subfolder}/{wp}_{fn}_hists/'), exist_ok=True)
+    if generate_hist_files:
+        os.makedirs(os.path.dirname(f'prak/sim_outputs/{subfolder}/{wp}_{fn}_hists/'), exist_ok=True)
 
     with open(f'prak/sim_outputs/{subfolder}/{wp}_{fn}.txt', 'w') as f:
         # write chosen parameters to file
@@ -117,7 +118,8 @@ def pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=
                 if not rec_as_r_map:
                     fails += 1
                     # save hist file 
-                    scenario.write_history(os.path.join(f'prak/sim_outputs/{subfolder}/{wp}_{fn}_hists/', f'error_{fails}'))   
+                    if generate_hist_files:
+                        scenario.write_history(os.path.join(f'prak/sim_outputs/{subfolder}/{wp}_{fn}_hists/', f'error_{fails}'))   
 
                     if circle:
                         circles += 1
@@ -179,23 +181,23 @@ def pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=
             f.write('\n')
                 
 # number of iterations per WP and case                
-ITERATIONS = 22222
+ITERATIONS = 10
 
 # tests for WP1 with error output
-pipeline(8, iterations=ITERATIONS, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, circular=True, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, clocklike=True, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, print_failed=True, pdf_error=True)
+pipeline(8, iterations=ITERATIONS, print_failed=True, pdf_error=True, generate_hist_files=True)
+pipeline(8, iterations=ITERATIONS, circular=True, print_failed=True, pdf_error=True, generate_hist_files=True)
+pipeline(8, iterations=ITERATIONS, clocklike=True, print_failed=True, pdf_error=True, generate_hist_files=True)
+pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, print_failed=True, pdf_error=True, generate_hist_files=True)
 
 # test for WP3 with error output
-pipeline(8, iterations=ITERATIONS, block_leaves=4, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, circular=True, block_leaves=4, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, block_leaves=3, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, circular=True, block_leaves=3, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True)
+pipeline(8, iterations=ITERATIONS, block_leaves=4, print_failed=True, pdf_error=True, generate_hist_files=True)
+pipeline(8, iterations=ITERATIONS, circular=True, block_leaves=4, print_failed=True, pdf_error=True, generate_hist_files=True)
+pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True, generate_hist_files=True)
+pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True, generate_hist_files=True)
+pipeline(8, iterations=ITERATIONS, block_leaves=3, print_failed=True, pdf_error=True, generate_hist_files=True)
+pipeline(8, iterations=ITERATIONS, circular=True, block_leaves=3, print_failed=True, pdf_error=True, generate_hist_files=True)
+pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True, generate_hist_files=True)
+pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True, generate_hist_files=True)
 
 # tests for WP4 print_failed=False in order to omit buffer problems
 pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True)
@@ -203,9 +205,9 @@ pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, circular=True)
 pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, clocklike=True)
 pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, circular=True, clocklike=True)
 # WP4 with error output (without generating the pdfs)
-pipeline(8, iterations=100, choose_smallest_spike=True, print_failed=True)
-pipeline(8, iterations=100, choose_smallest_spike=True, circular=True, print_failed=True)
-pipeline(8, iterations=100, choose_smallest_spike=True, clocklike=True, print_failed=True)
-pipeline(8, iterations=100, choose_smallest_spike=True, circular=True, clocklike=True, print_failed=True)
+pipeline(8, iterations=100, choose_smallest_spike=True, print_failed=True, generate_hist_files=True)
+pipeline(8, iterations=100, choose_smallest_spike=True, circular=True, print_failed=True, generate_hist_files=True)
+pipeline(8, iterations=100, choose_smallest_spike=True, clocklike=True, print_failed=True, generate_hist_files=True)
+pipeline(8, iterations=100, choose_smallest_spike=True, circular=True, clocklike=True, print_failed=True, generate_hist_files=True)
 
 # pipeline(8, iterations=10, choose_smallest_spike=True, pdf_error=False, print_failed=False)
