@@ -181,23 +181,13 @@ def pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=
             f.write('\n')
                 
 # number of iterations per WP and case                
-<<<<<<< HEAD
-ITERATIONS = 10
+ITERATIONS = 20000
 
 # tests for WP1 with error output
 pipeline(8, iterations=ITERATIONS, print_failed=True, pdf_error=True, generate_hist_files=True)
 pipeline(8, iterations=ITERATIONS, circular=True, print_failed=True, pdf_error=True, generate_hist_files=True)
 pipeline(8, iterations=ITERATIONS, clocklike=True, print_failed=True, pdf_error=True, generate_hist_files=True)
 pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, print_failed=True, pdf_error=True, generate_hist_files=True)
-=======
-ITERATIONS = 20000
-
-# tests for WP1 with error output
-#pipeline(8, iterations=ITERATIONS, print_failed=True, pdf_error=True)
-#pipeline(8, iterations=ITERATIONS, circular=True, print_failed=True, pdf_error=True)
-#pipeline(8, iterations=ITERATIONS, clocklike=True, print_failed=True, pdf_error=True)
-#pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, print_failed=True, pdf_error=True)
->>>>>>> refs/remotes/origin/main
 
 # test for WP3 with error output
 pipeline(8, iterations=ITERATIONS, block_leaves=4, print_failed=True, pdf_error=True, generate_hist_files=True)
@@ -210,21 +200,14 @@ pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=3, print_failed=
 pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True, generate_hist_files=True)
 
 # tests for WP4 print_failed=False in order to omit buffer problems
-#pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True)
-#pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, circular=True)
-#pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, clocklike=True)
-#pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, circular=True, clocklike=True)
+pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True)
+pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, circular=True)
+pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, clocklike=True)
+pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, circular=True, clocklike=True)
 # WP4 with error output (without generating the pdfs)
-<<<<<<< HEAD
-pipeline(8, iterations=100, choose_smallest_spike=True, print_failed=True, generate_hist_files=True)
-pipeline(8, iterations=100, choose_smallest_spike=True, circular=True, print_failed=True, generate_hist_files=True)
-pipeline(8, iterations=100, choose_smallest_spike=True, clocklike=True, print_failed=True, generate_hist_files=True)
-pipeline(8, iterations=100, choose_smallest_spike=True, circular=True, clocklike=True, print_failed=True, generate_hist_files=True)
-=======
-#pipeline(8, iterations=100, choose_smallest_spike=True, print_failed=True)
-#(8, iterations=100, choose_smallest_spike=True, circular=True, print_failed=True)
-#pipeline(8, iterations=100, choose_smallest_spike=True, clocklike=True, print_failed=True)
-#pipeline(8, iterations=100, choose_smallest_spike=True, circular=True, clocklike=True, print_failed=True)
->>>>>>> refs/remotes/origin/main
+pipeline(8, iterations=500, choose_smallest_spike=True, print_failed=True, generate_hist_files=True)
+pipeline(8, iterations=500, choose_smallest_spike=True, circular=True, print_failed=True, generate_hist_files=True)
+pipeline(8, iterations=500, choose_smallest_spike=True, clocklike=True, print_failed=True, generate_hist_files=True)
+pipeline(8, iterations=500, choose_smallest_spike=True, circular=True, clocklike=True, print_failed=True, generate_hist_files=True)
 
 # pipeline(8, iterations=10, choose_smallest_spike=True, pdf_error=False, print_failed=False)
