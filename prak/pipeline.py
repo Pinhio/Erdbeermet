@@ -182,20 +182,20 @@ def pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=
 ITERATIONS = 20000
 
 # tests for WP1 with error output
-pipeline(8, iterations=ITERATIONS, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, circular=True, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, clocklike=True, print_failed=True, pdf_error=True)
-pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, print_failed=True, pdf_error=True)
+#pipeline(8, iterations=ITERATIONS, print_failed=True, pdf_error=True)
+#pipeline(8, iterations=ITERATIONS, circular=True, print_failed=True, pdf_error=True)
+#pipeline(8, iterations=ITERATIONS, clocklike=True, print_failed=True, pdf_error=True)
+#pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, print_failed=True, pdf_error=True)
 
 # test for WP3 with error output
-#pipeline(8, iterations=ITERATIONS, block_leaves=4, print_failed=True, pdf_error=True)
-#pipeline(8, iterations=ITERATIONS, circular=True, block_leaves=4, print_failed=True, pdf_error=True)
-#pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True)
-#pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True)
-#pipeline(8, iterations=ITERATIONS, block_leaves=3, print_failed=True, pdf_error=True)
-#pipeline(8, iterations=ITERATIONS, circular=True, block_leaves=3, print_failed=True, pdf_error=True)
-#pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True)
-#pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True)
+pipeline(8, iterations=ITERATIONS, block_leaves=4, print_failed=True, pdf_error=True)
+pipeline(8, iterations=ITERATIONS, circular=True, block_leaves=4, print_failed=True, pdf_error=True)
+pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True)
+pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True)
+pipeline(8, iterations=ITERATIONS, block_leaves=3, print_failed=True, pdf_error=True)
+pipeline(8, iterations=ITERATIONS, circular=True, block_leaves=3, print_failed=True, pdf_error=True)
+pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True)
+pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True)
 
 # tests for WP4 print_failed=False in order to omit buffer problems
 #pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True)
