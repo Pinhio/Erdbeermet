@@ -180,34 +180,45 @@ def pipeline(size:Union[int,list], iterations:int=1, first_four_simulation:list=
             f.write('=====================================================\n')
             f.write('\n')
                 
-# number of iterations per WP and case                
-ITERATIONS = 20000
+# SET PARAMETERS HERE  
+# int or list - max number of elements to be simulated (matrix-size)
+SIZE = 8 
 
-# tests for WP1 with error output
-pipeline(8, iterations=ITERATIONS, print_failed=True, pdf_error=True, generate_hist_files=True)
-pipeline(8, iterations=ITERATIONS, circular=True, print_failed=True, pdf_error=True, generate_hist_files=True)
-pipeline(8, iterations=ITERATIONS, clocklike=True, print_failed=True, pdf_error=True, generate_hist_files=True)
-pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, print_failed=True, pdf_error=True, generate_hist_files=True)
+# int - number of simulations to carry out
+ITERATIONS = 20000 
 
-# test for WP3 with error output
-pipeline(8, iterations=ITERATIONS, block_leaves=4, print_failed=True, pdf_error=True, generate_hist_files=True)
-pipeline(8, iterations=ITERATIONS, circular=True, block_leaves=4, print_failed=True, pdf_error=True, generate_hist_files=True)
-pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True, generate_hist_files=True)
-pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=4, print_failed=True, pdf_error=True, generate_hist_files=True)
-pipeline(8, iterations=ITERATIONS, block_leaves=3, print_failed=True, pdf_error=True, generate_hist_files=True)
-pipeline(8, iterations=ITERATIONS, circular=True, block_leaves=3, print_failed=True, pdf_error=True, generate_hist_files=True)
-pipeline(8, iterations=ITERATIONS, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True, generate_hist_files=True)
-pipeline(8, iterations=ITERATIONS, circular=True, clocklike=True, block_leaves=3, print_failed=True, pdf_error=True, generate_hist_files=True)
+# list - specify the initial elements of the simulation
+FIRST_FOUR_SIMULATION = [0,1,2,3] 
 
-# tests for WP4 print_failed=False in order to omit buffer problems
-pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True)
-pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, circular=True)
-pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, clocklike=True)
-pipeline(8, iterations=ITERATIONS, choose_smallest_spike=True, circular=True, clocklike=True)
-# WP4 with error output (without generating the pdfs)
-pipeline(8, iterations=500, choose_smallest_spike=True, print_failed=True, generate_hist_files=True)
-pipeline(8, iterations=500, choose_smallest_spike=True, circular=True, print_failed=True, generate_hist_files=True)
-pipeline(8, iterations=500, choose_smallest_spike=True, clocklike=True, print_failed=True, generate_hist_files=True)
-pipeline(8, iterations=500, choose_smallest_spike=True, circular=True, clocklike=True, print_failed=True, generate_hist_files=True)
+# bool - parameter for input matrix generation
+CIRCULAR = True 
 
-# pipeline(8, iterations=10, choose_smallest_spike=True, pdf_error=False, print_failed=False)
+# bool - parameter for input matrix generation
+CLOCKLIKE = True 
+
+# bool - always choose first valid candidate
+FIRST_CANDIDATE_ONLY = True 
+
+# int - set to 3 or 4 - inhibits algorithm from choosing initial X leaves for reduction
+BLOCK_LEAVES = 0
+
+# bool - only choose smallest spike for reduction (WP4)
+CHOOSE_SMALLEST_SPIKE = False 
+
+# bool - generate and save the histories to file
+GENERATE_HIST_FILES = False 
+
+# bool - generate PDF for every failed recocnition (HANDLE WITH CARE!!!!eins!!elf!!!!)
+PDF_ERROR = False 
+
+# bool - save detailed info for failed recocnitions
+PRINT_FAILED = False 
+
+# bool - parameter for console output
+PRINT_INFO = False 
+
+
+# RUN PIPELINE HERE
+pipeline(SIZE, ITERATIONS, FIRST_FOUR_SIMULATION, 
+    CIRCULAR, CLOCKLIKE, FIRST_CANDIDATE_ONLY, BLOCK_LEAVES, 
+    CHOOSE_SMALLEST_SPIKE, GENERATE_HIST_FILES, PDF_ERROR, PRINT_FAILED, PRINT_INFO)

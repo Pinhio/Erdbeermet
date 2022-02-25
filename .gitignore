@@ -58,6 +58,8 @@ testfile*
 src/erdbeermet.egg-info/
 
 # prak
-prak/fail_outputs/
-prak/sim_outputs/
+prak/sim_outputs/cc/*
+prak/sim_outputs/cnc/*
+prak/sim_outputs/ncc/*
+prak/sim_outputs/ncnc/*
 examples/readme*

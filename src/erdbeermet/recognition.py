@@ -389,22 +389,22 @@ def recognize(D, B=None, choose_smallest_spike=False, first_candidate_only=False
         if n > 4:
         
             candidates = _find_candidates(D, V, print_info)
+            
             # WP3: ensure that given values in B can't be candidates
-            # print(f"candidates: {candidates}")
-            # print(f"B: {B}")
             if B != None:
                 temp_cand = candidates.copy()
                 for c in temp_cand:
                     if c[2] in B:
                         candidates.remove(c)
-            # print(f"candidates: {candidates}")
 
             # WP4: select candidate with smallest spike length
             # create a dict candidate_dependencies for each candidate
             # candidate_dependencies holds deltas of the triple and a list of candidates with smaller spike lengths as well as the index in the candidates list
             if choose_smallest_spike and len(candidates) != 1 and n > 5:
+                # structure to save relations between candidates
                 candidate_dependencies = {}
                 for c_i, c in enumerate(candidates):
+                    # compute deltas
                     c_delt = _compute_deltas(V, D, c[4], c[0], c[1], c[2], c[3])
                     c_delt = (c_delt[2], c_delt[3], c_delt[0])
                     c_xyz = (c[0], c[1], c[2])
@@ -412,7 +412,7 @@ def recognize(D, B=None, choose_smallest_spike=False, first_candidate_only=False
                     for k, v in candidate_dependencies.items():
                         # -1 initial state, 0: first triple has smaller delta (k bigger), 1: second triple has smaller delta
                         compare_state = -1
-                        #succ_state default = True and when first/second triplet delta comparison still smaller
+                        # succ_state default = True and when first/second triplet delta comparison still smaller
                         succ_state = True
                         if k != c_xyz:
                             for xyz_i, xyz in enumerate(c_xyz):
@@ -424,21 +424,18 @@ def recognize(D, B=None, choose_smallest_spike=False, first_candidate_only=False
                                     elif compare_state != -1 and compare_state != smaller_state:
                                         succ_state = False
                                         continue
+                            # append current candidate, small spike found
                             if succ_state:
                                 if compare_state == 0:
                                     candidate_dependencies[c_xyz][1].append(k)
                                 elif compare_state == 1:
                                     candidate_dependencies[k][1].append(c_xyz)
-                    # for k, v in candidate_dependencies.items():
-                        # print(f"{k}: {v}")
-                    # print('------------------------------------------------------------')
-                # print('======================')
                 c_smallest_spike = []
+                # find all possible candidates with smalles spike
                 for k, v in candidate_dependencies.items():
-                    # print(f"{k}: {v}")
                     if not v[1]:
                         c_smallest_spike.append(candidates[v[2]])
-                # print(c_smallest_spike)
+                # choose random candidate if more than one found
                 if len(c_smallest_spike) > 1:
                     rand_c = np.random.randint(len(c_smallest_spike))
                     candidates = [c_smallest_spike[rand_c]]
@@ -446,8 +443,6 @@ def recognize(D, B=None, choose_smallest_spike=False, first_candidate_only=False
                     candidates = c_smallest_spike
                 else:
                     circle = True
-                    # print('circle')
-                # print(f'chosen candidate: {candidates}')
                     
         
             found_valid = False
