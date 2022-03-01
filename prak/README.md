@@ -25,7 +25,7 @@ def pipeline(...):
 
 ## pipeline output
 The pipeline generates 3 different kinds of output and stores them in the /prak/sim_outputs folder.
-For different kinds of settings, subfolders are created:
+For different kinds of settings, subfolders are created:<br>
 cc = circular AND clocklike | cnc = circular AND NOT clocklike | ncc = NOT circular AND clocklike | ncnc = NOT circular AND NOT clocklike
 
 * sim_ouputs
